@@ -16,8 +16,8 @@ struct Symbol {
 	double freq;
 };
 /*
-pos1 is position in first file
-pos2 is position is second file
+pos1 is byte number
+pos2 is byte number for change
 */
 struct Positions {
 	uint8_t pos1;
@@ -331,30 +331,13 @@ std::vector<Positions> read_keys(bool invert)
 bool change_content(const std::vector<Positions>& pos, const std::string& filename, const std::string& prefix)
 {
 	std::fstream input(filename, std::ios::in | std::ios::binary);
-	std::vector<uint8_t> text(256);
 	std::fstream output(prefix + filename, std::ios::out | std::ios::trunc);
 	if (!output.is_open()) {
 		return false;
 	}
-	uint16_t bytes = 0; //bytes = 256 resize and change content
-	//uint64_t times = 0; // times resized
 	char t;
 	while (input.read(&t, 1)) {
-		text[bytes] = t;
-		bytes++;
-		if (bytes == 256) {
-			bytes = 0;
-			for (std::vector<uint8_t>::iterator it = text.begin(); it != text.end(); it++) {
-				*it = pos[*it].pos2;
-				output << *it;
-			}
-			text = std::vector<uint8_t>(256);
-			//times++;
-			//text.resize(text.size() + 256);
-		}
-	}
-	for (uint16_t i = 0; i != bytes; i++) {
-		output << text[i];
+		output << pos[(uint8_t)t].pos2;
 	}
 	return true;
 }
